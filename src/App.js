@@ -6,6 +6,9 @@ const App = () => {
   const [header, setHeader] = useState("Choose template");
   const [templates, setTemplates] = useState([]);
   const [template, setTemplate] = useState();
+  const [upperText, setUpperText] = useState("");
+  const [lowerText, setLowerText] = useState("");
+  const [result, setResult] = useState();
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -23,6 +26,40 @@ const App = () => {
       setHeader("Insert text");
     }
   }, [template]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!upperText || !lowerText) {
+      alert("Fill out the form!");
+      return;
+    }
+
+    const { data } = await axios.post(
+      "https://api.imgflip.com/caption_image",
+      null,
+      {
+        params: {
+          template_id: template.id,
+          text0: upperText,
+          text1: lowerText,
+          username: "KappaPrajd",
+          password: "BasicPassword",
+        },
+      }
+    );
+
+    setResult(data.data);
+    setHeader("Download meme");
+  };
+
+  const handleClick = () => {
+    setTemplate();
+    setResult();
+    setHeader("Choose template");
+    setUpperText("");
+    setLowerText("");
+  };
 
   const renderContent = () => {
     //waiting for templates to load
@@ -45,6 +82,41 @@ const App = () => {
       });
 
       return <div className="templates">{content}</div>;
+      //show form to generate meme
+    } else if (template && !result) {
+      return (
+        <React.Fragment>
+          <img
+            className="selected"
+            src={template.url}
+            alt={template.name}
+          ></img>
+          <form onSubmit={(e) => handleSubmit(e)}>
+            <label>Upper text</label>
+            <input
+              type="text"
+              value={upperText}
+              onChange={(e) => setUpperText(e.target.value)}
+            ></input>
+            <label>Lower text</label>
+            <input
+              type="text"
+              value={lowerText}
+              onChange={(e) => setLowerText(e.target.value)}
+            ></input>
+            <button type="submit">Submit</button>
+          </form>
+        </React.Fragment>
+      );
+    } else {
+      return (
+        <React.Fragment>
+          <img className="result" src={result.url} alt={template.name}></img>
+          <button className="flush" onClick={handleClick}>
+            Try again
+          </button>
+        </React.Fragment>
+      );
     }
   };
 
