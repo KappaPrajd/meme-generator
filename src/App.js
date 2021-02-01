@@ -30,7 +30,7 @@ const App = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!upperText || !lowerText) {
+    if (!upperText && !lowerText) {
       alert("Fill out the form!");
       return;
     }
